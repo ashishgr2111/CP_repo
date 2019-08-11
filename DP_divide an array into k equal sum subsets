@@ -1,4 +1,4 @@
-Let a be an array denoting the set S. I omit the case when SUM % K != 0.
+// Let a be an array denoting the set S. I omit the case when SUM % K != 0.
 
 for k = 0 to K - 1:
     for bitmask = 0 to 2^n - 1:
@@ -22,3 +22,5 @@ if dp[K][2^n - 1] == 1:
     print "yes"
 else:
     print "no"
+ 
+// The time complexity per one testcase is O(K * 2^N * N)
