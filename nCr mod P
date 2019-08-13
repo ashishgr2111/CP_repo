@@ -22,9 +22,11 @@ int nCrModpLucas(int n, int r, int p)
 }
 
 3.
-Inverse factorial:
+Fermat's Theorem and Inverse factorial:
 
 [ n! / ( r! (n-r)! ) ] % M, you can convert it to : n * (n-1) … * (n-r+1) * r-1 * (r-1)-1 … * 1
+
+From Fermat's Theorem, when A isn't divisible by M,
 
 pow(A,M-1) % M = 1
 
