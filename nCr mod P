@@ -1,0 +1,35 @@
+Computing nCr modulo P:
+
+1.
+DP solution: (n*r time complexity)
+
+C(n, r) = C(n-1, r-1) + C(n-1, r)
+C(n, 0) = C(n, n) = 1
+
+2.
+Lucas Theorem: (p*p*log(p) time complexity with p*p DP).
+
+int nCrModpLucas(int n, int r, int p) 
+{ 
+   if (r==0) 
+      return 1; 
+  
+   // Compute last digits of n and r in base p 
+   int ni = n%p, ri = r%p; 
+  
+   return (nCrModpLucas(n/p, r/p, p) * // Last digits of n and r 
+           nCrModpDP(ni, ri, p)) % p;  // Remaining digits 
+}
+
+3.
+Inverse factorial:
+
+[ n! / ( r! (n-r)! ) ] % M, you can convert it to : n * (n-1) … * (n-r+1) * r-1 * (r-1)-1 … * 1
+
+pow(A,M-1) % M = 1
+
+Hence, A * pow(A,M-2) % M = 1
+Or in other words,
+
+Ainv % M = pow(A,M-2) % M
+
