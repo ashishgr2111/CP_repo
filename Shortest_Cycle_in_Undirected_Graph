@@ -1,0 +1,16 @@
+Undirected graphs and BFS.
+
+The key idea is that a shortest cycle is comprised of a shortest path between two vertices, say
+v and w, that does not include edge v-w, plus the edge v-w. We can find the shortest such
+path by deleting v-w from the graph and running breadth-first search from v (or w).
+
+For each edge v-w
+  - Form a graph that is the same as G, except that edge v-w is removed.
+  - Find the shortest path dist(v, w) from v to w using BFS.
+  - Compute dist(v, w) + 1, which corresponds to the cycle consisting
+    of the path from v to w, plus the edge v-w.
+  - If this is shorter than the best cycle found so far, save it.
+  
+We run BFS E times and each run takes O(E + V ) time. The overall algorithm takes
+O(E(E + V )) time.
+
