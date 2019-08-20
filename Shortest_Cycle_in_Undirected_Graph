@@ -14,3 +14,7 @@ For each edge v-w
 We run BFS E times and each run takes O(E + V ) time. The overall algorithm takes
 O(E(E + V )) time.
 
+REMEMBER:
+Please note that you can't use DFS here because DFS may already visit the node earlier NOT
+with the shortest path. So you can't visit the target node with a promising shortest path.
+With BFS, it's certain that the traversal will always be shortest one.
