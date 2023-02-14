@@ -1,0 +1,7 @@
+Issue -
+Sublime text editor closes immediately after opening it using any method.
+
+Solution -
+1. Uninstall sublime-text package from your machine completely.
+2. Delete ~/.config/sublime-text folder.
+3. Install sublime-text-3 as a 64-bit debian package from here ---> https://www.sublimetext.com/3

@@ -1,0 +1,10 @@
+Ctrl+Shift+P -> Install Package Control
+Ctrl+Shift+P -> Install Package -> SublimeAStyleFormatter
+
+
+Preference -> Package Settings -> SublimeAStyleFormatter -> Settings-User
+-> 
+Now change this inside the file "SublimeAStyleFormatter.sublime-settings"
+
+// Auto format on file save
+"autoformat_on_save": true,
