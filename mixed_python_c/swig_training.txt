@@ -1,0 +1,175 @@
+What swig needs to create wrapper files?
+-> Swig needs *.h file (include file), which provides an interface to .i file.
+-> In audio proj, we use *_swig_wrapper.hpp instead of .h file since it includes some other general interfaces besides the module specific ones. Just like in C, the .h files are simply copied verbatim to the .i file.
+
+//--------------------------------------------------------------------------------------------------------------
+
+Swig creates 2 wrapper files - <file>.py and <file>_wrap.c or <file>_wrap.cxx files. 
+
+These files can be re-named as per our need as shown in the example below.
+
+1. <file>.py is an interface to python world. This is the file that you will import to use the module. Any py code which uses your file code must call the PY wrapper functions defined here. The name of the Python file is derived from the module name specified with %module.
+2. <file>_wrap.c contains the low-level wrappers that need to be compiled and linked with the rest of your C/C++ application to create an extension module.
+
+A module consists of a Python source file example.py and a low-level extension module _example.so.
+
+//--------------------------------------------------------------------------------------------------------------
+
+Examples of above 2 files in our audio proj for "sss_flt_pure_voice_tx_api_swig_wrapper" module -
+
+1. build/python_pkgs/cbuild/swig/sss_flt_pure_voice_tx_api_swig_wrapper.py
+
+2. build/comp_bone_conduction/src/swig/CMakeFiles/sss_flt_pure_voice_tx_api_swig_wrapper.dir/sss_flt_pure_voice_tx_api_swig_wrapperPYTHON_wrap.cxx
+
+//--------------------------------------------------------------------------------------------------------------
+
+Difference between the inclusion of  ---> #include "your-header-file.h" <--- at 2 places in the .i file-
+1. Inside %{..%} block, your-header-file provides the neccessary declarations to compile your python wrapper module. It must neccessarily be included inside this block for compilation.
+2. Outside, your-header-file provides the interface functions to be called from your python world. Helper functions can be written in C or python (using %pythoncode).
+
+//--------------------------------------------------------------------------------------------------------------
+
+For any variable "foo", swig creates a getter and setter inside _wrap.c file, so that the outer python code can fetch and modify it.
+
+The bare %{ ... %} directive is a shortcut that is the same as %header %{ ... %}.
+
+%begin %{
+  ... code in begin section ...
+%}
+
+%runtime %{
+  ... code in runtime section ...
+%}
+
+%header %{
+  ... code in header section ...
+%}
+
+%wrapper %{
+  ... code in wrapper section ...
+%}
+
+%init %{
+  ... code in init section ...
+%}
+
+%insert("section") %{ ... %}
+
+//--------------------------------------------------------------------------------------------------------------
+
+1. Code which is not written inside of any section is just an interface to the python wrapper.
+2. Arrays are fully supported by SWIG, but they are always handled as pointers instead of mapping them to a special array object or list in the target language.
+
+//--------------------------------------------------------------------------------------------------------------
+
+INLINED code blocks - writing helper functions :
+
+%inline %{
+/* Create a new vector */
+Vector *new_Vector() {
+  return (Vector *) malloc(sizeof(Vector));
+}
+%}
+------> This is the same as writing:
+
+%{
+/* Create a new vector */
+Vector *new_Vector() {
+  return (Vector *) malloc(sizeof(Vector));
+}
+%}
+
+/* Create a new vector */
+Vector *new_Vector() {
+  return (Vector *) malloc(sizeof(Vector));
+}
+
+//--------------------------------------------------------------------------------------------------------------
+
+Using structures in Swig - 
+SWIG doesn't care if the declaration of a structure in a .i file exactly matches that used in the underlying C code (except in the case of nested structures). For this reason, there are no problems omitting problematic members or simply omitting the structure definition altogether.
+
+//--------------------------------------------------------------------------------------------------------------
+
+Adding member functions to C structures - Using the %extend directive
+
+/* file : vector.h */
+...
+typedef struct Vector {
+  double x, y, z;
+} Vector;
+
+-------------> You can make a Vector look a lot like a class by writing a SWIG interface like this: <-----------
+
+// file : vector.i
+%module mymodule
+%{
+#include "vector.h"
+%}
+
+%include "vector.h"          // Just grab original C header file
+%extend Vector {             // Attach these functions to struct Vector
+  Vector(double x, double y, double z) {
+    Vector *v;
+    v = (Vector *) malloc(sizeof(Vector));
+    v->x = x;
+    v->y = y;
+    v->z = z;
+    return v;
+  }
+  ~Vector() {
+    free($self);
+  }
+  double magnitude() {
+    return sqrt($self->x*$self->x+$self->y*$self->y+$self->z*$self->z);
+  }
+  void print() {
+    printf("Vector [%g, %g, %g]\n", $self->x, $self->y, $self->z);
+  }
+};
+
+//--------------------------------------------------------------------------------------------------------------
+
+"sss_swig.i" is the Common 7S SWIG header. Here we want to have only SWIG typemaps and SWIG macros. All plain C/C++ code should be in .h or .hpp files included from your comp_xxx_wrapper.i in %inline section.
+
+%include "sss_swig.i" --> Included inside every "comp_xxx_wrapper.i" file
+
+/*************************************************\ swig.i /*************************************************\
+%inline %{
+// sss_swig.i is always included in our SWIG modules. We define this here so that numpy makes import_array() available.
+#define SWIG_FILE_WITH_INIT
+%}
+
+/* need this for correct module initialization */
+%init %{
+import_array();
+%}
+\*************************************************/ swig.i \*************************************************/
+
+For enums, make sure that the definition of the enumeration actually appears in a header file or in the wrapper file somehow---if you just stick an enum in a SWIG interface without also telling the C compiler about it, the wrapper code won't compile.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
